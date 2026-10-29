@@ -218,13 +218,13 @@ This repository preserves the original Git history in a standalone project archi
 
 ## Project Documentation
 
-The team prepared supporting documentation and an application demonstration as part of the original assessment.
+The original project documentation and supporting materials are preserved in the [`docs/`](docs/) directory.
 
-The original project documentation covered the implementation, development workflow, testing process and individual team responsibilities.
+- [Group 14 Project Report](docs/Group-14-Project-Report.pdf) — Collaborative project documentation covering the development process, implementation, testing and team responsibilities.
+- [Individual Contribution Declaration](docs/Individual-Contribution-Declaration.pdf) — Details of my responsibilities as Project Code Owner, including implementation, integration testing and documentation.
+- [Original Assignment Specification](docs/Original-Assignment-Specification.md) — The original 2023 assignment requirements.
 
-The complete collaborative source code and commit history are preserved in the [original Group 14 repository](https://github.com/IngridBustnes/CSU23021-GRP14).
-
-Additional project documentation and demonstration materials were maintained separately as part of the university submission.
+The complete collaborative source code and Git history are also preserved in the [original Group 14 repository](https://github.com/IngridBustnes/CSU23021-GRP14).
 
 ## Academic Context
 

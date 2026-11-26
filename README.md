@@ -1,249 +1,117 @@
-
 # Morse Code Learning Game
 
-**An interactive, four-level Morse Code learning game developed for the Raspberry Pi Pico using C and ARM assembly.**
+**A four-level game for the Raspberry Pi Pico that teaches Morse code. You tap the answers on a button, and the game is written in C and ARM assembly.**
 
-A collaborative embedded-systems project completed as part of **CSU23021 – Microprocessor Systems** at **Trinity College Dublin** in 2023.
+[![Build firmware](https://github.com/leahweldon/Microprocessor-Systems-Morse-Code-Game/actions/workflows/build.yml/badge.svg)](https://github.com/leahweldon/Microprocessor-Systems-Morse-Code-Game/actions/workflows/build.yml)
+![C](https://img.shields.io/badge/C-Pico%20SDK-3f5e73)
+![ARM Thumb assembly](https://img.shields.io/badge/ARM-Cortex--M0%2B%20assembly-c9a227)
+![RP2040](https://img.shields.io/badge/board-RP2040%20·%20MAKER--PI--PICO-a5452f)
 
-![Assignment 02 – Morse Code Game](https://user-images.githubusercontent.com/91458920/225872537-d8e3db8b-ddfd-4d5d-a648-d2d98993b9c4.png)
+![The game's welcome screen on the serial console, how to tap dots and dashes, and what the RGB LED colours mean](docs/images/game-overview.png)
 
-## Overview
+The game shows you a letter, a number or a word, and you tap its Morse code on the board's GP21 button: a short press for a dot, a long press for a dash. It decodes what you tapped, tells you over the serial console whether you got it right, and shows your remaining lives on the RGB LED. Get five right in a row to move up a level.
 
-The Morse Code Learning Game is an educational embedded application that teaches players to recognise and enter Morse Code through a physical push-button interface.
+We were a team of five, building it over four weeks for CSU23021 Microprocessor Systems at Trinity College Dublin (2023). I was the team's **Code Owner**, responsible for the code's quality, testing and integration, as well as my own parts of the game.
 
-Developed for the **MAKER-PI-PICO board**, the game combines C for application logic with ARM assembly for low-level input processing and interrupt handling. Players enter Morse Code using the board's GP21 button, receive feedback through a serial console and RGB LED, and progress through increasingly challenging levels.
+## How to play
 
-The project was developed by a five-person team over four weeks, with an emphasis on embedded programming, hardware interaction, collaborative software development, version control and systematic testing.
+1. Tap the number of a level in Morse to choose it: `.----` for level 1, up to `....-` for level 4.
+2. Tap the Morse code for the character or word on screen.
+3. The console shows what you tapped and what it decodes to, and whether it matched.
 
-## Features
+| Level | You're asked for | Morse shown? |
+|---|---|---|
+| 1 | Single characters (A–Z, 0–9) | Yes |
+| 2 | Single characters | No |
+| 3 | Whole words | Yes |
+| 4 | Whole words | No |
 
-- **Four difficulty levels**, progressing from individual characters to complete words.
-- **Physical Morse Code input**, using short and long button presses to distinguish dots and dashes.
-- **Alphanumeric decoding**, supporting letters A–Z and digits 0–9.
-- **Interactive UART console**, displaying instructions, questions, decoded input and game feedback.
-- **Lives system**, with incorrect answers reducing lives and correct answers restoring lives up to a maximum of three.
-- **Level progression**, requiring five consecutive correct sequences to advance.
-- **RGB LED feedback**, communicating the current game state.
-- **Watchdog timer**, supporting automatic recovery following inactivity.
-- **Performance statistics**, tracking correct answers, incorrect answers and success rates.
+You start with three lives. A wrong answer costs one, and a right answer gives one back, up to three. Five right answers in a row takes you to the next level. When you finish a level or run out of lives, the game shows your correct and incorrect answers and your success rate. If you stop playing mid-game, the watchdog timer resets the board to the welcome screen.
 
-## Gameplay
+## How it works
 
-The game supports four progressively challenging levels.
+The time-critical input handling is in ARM assembly; the game logic is in C.
 
-| Level | Difficulty | Challenge | Morse Reference |
-|---|---|---|---|
-| **1** | Easy | Translate individual characters | Provided |
-| **2** | Medium | Translate individual characters | Hidden |
-| **3** | Hard | Translate complete words | Provided |
-| **4** | Expert | Translate complete words | Hidden |
-
-### Entering Morse Code
-
-The player interacts with the game through the **GP21 push-button** on the MAKER-PI-PICO board.
-
-- A short press represents a dot (`.`).
-- A longer press represents a dash (`-`).
-- Pauses between button presses are used to distinguish Morse Code symbols and completed input sequences.
-- The decoded input is displayed through the serial console.
-
-### Progression and Feedback
-
-Players begin with three lives. Incorrect sequences reduce the remaining lives, while correct sequences can restore a life up to the maximum.
-
-Completing five consecutive correct sequences allows progression to the next level.
-
-The RGB LED provides visual feedback, while console messages display the player's progress, answer accuracy and game status.
-
-## Technical Implementation
-
-The application integrates higher-level game logic with low-level embedded hardware control.
-
-### C – Game Logic and Hardware Integration
-
-The C implementation manages the core gameplay and interfaces with the Raspberry Pi Pico SDK.
-
-Responsibilities include:
-
-- Initialising the Morse Code lookup table.
-- Representing alphanumeric characters and their Morse Code sequences.
-- Validating player input against expected answers.
-- Tracking difficulty levels, lives and correct responses.
-- Displaying game instructions and feedback.
-- Calculating performance statistics.
-- Controlling the WS2812 RGB LED through the PIO interface.
-- Configuring the watchdog timer.
-- Providing C wrappers for GPIO operations used by the assembly implementation.
-
-**Source:** [`assign02.c`](assign02.c)
-
-### ARM Assembly – Input Processing and Interrupt Handling
-
-The ARM assembly component implements low-level control of the physical input interface.
-
-The program uses the RP2040's Cortex-M0+ instruction set to coordinate button input and game execution.
-
-Key responsibilities include:
-
-- Configuring GPIO input.
-- Installing interrupt service routines.
-- Detecting button presses and releases.
-- Processing timing information to distinguish Morse Code symbols.
-- Managing input sequences.
-- Coordinating execution between assembly routines and C functions.
-
-**Source:** [`assign02.S`](assign02.S)
-
-### Programmable I/O and RGB LED
-
-The project uses the RP2040 Programmable I/O (PIO) subsystem to control the board's WS2812 RGB LED.
-
-The LED provides a visual representation of game state and player feedback.
-
-**Source:** [`ws2812.pio`](ws2812.pio)
-
-## Hardware and Technology
-
-| Component | Technology |
-|---|---|
-| Microcontroller | Raspberry Pi RP2040 |
-| Development board | MAKER-PI-PICO |
-| Programming languages | C and ARM Thumb assembly |
-| SDK | Raspberry Pi Pico SDK |
-| Build system | CMake |
-| Compiler toolchain | ARM GNU Toolchain |
-| User input | GP21 push-button |
-| Visual feedback | WS2812 RGB LED |
-| Console | UART serial communication |
-| Hardware interfaces | GPIO interrupts, PIO and watchdog timer |
-| Version control | Git and GitHub |
-
-## Repository Structure
-
-```text
-.
-├── CMakeLists.txt       # Build configuration
-├── assign02.c           # Game logic and hardware integration
-├── assign02.S           # ARM assembly input and interrupt handling
-├── ws2812.pio           # RGB LED PIO program
-├── ws2812.pio.h         # Retained PIO header
-├── build/               # Archived build outputs and firmware
-└── README.md            # Project documentation
+```mermaid
+flowchart LR
+    B[GP21 button] -->|rising and falling edges| G[GPIO interrupt<br/>assembly]
+    G -->|press length| D{Under 255 ms?}
+    D -->|yes| Dot[dot]
+    D -->|no| Dash[dash]
+    A[1 s timer alarm<br/>assembly] -->|first pause| Sp[space]
+    A -->|second pause| Sub[submit]
+    Dot & Dash & Sp & Sub --> C[Game logic in C<br/>decode · check · score]
+    C --> U[UART console]
+    C --> P[PIO state machine] --> L[WS2812 RGB LED]
+    C --> W[Watchdog timer]
 ```
 
-The repository preserves the original collaborative Git history and its archived build artifacts.
+- **Assembly ([`assign02.S`](assign02.S)):** installs its own handlers in the RP2040's vector table for the GPIO interrupt and the timer alarm. The button handler timestamps each press and release to tell dots from dashes. The alarm handler turns one second of silence into a space and a second one into "submit". Between inputs the main loop sleeps with `wfi` (wait for interrupt) rather than busy-waiting.
+- **C ([`assign02.c`](assign02.c)):** holds the Morse table for A–Z and 0–9 and a list of words, decodes what was tapped, checks it against the question, and keeps track of lives, streaks, levels and statistics. It also gives the assembly small wrappers around the Pico SDK's GPIO functions.
+- **PIO ([`ws2812.pio`](ws2812.pio)):** one of the RP2040's programmable I/O state machines sends the colour data to the WS2812 RGB LED, so the CPU doesn't have to produce the LED's precise timing itself.
+- **Watchdog:** resets the board to the welcome screen if a game is left idle.
 
-## Building and Running
+The firmware takes up about 27 KB of flash and 2.4 KB of RAM.
 
-The project targets the Raspberry Pi Pico and requires an appropriate embedded development environment.
+## Who wrote what
 
-### Requirements
+Each function in the source names its author. My parts were:
 
-- Raspberry Pi Pico or compatible RP2040 board
-- Raspberry Pi Pico SDK
-- ARM GNU Toolchain
-- CMake
-- Compatible build tools
-- USB connection and serial terminal
-- MAKER-PI-PICO board for the intended physical input and LED interface
-
-### Build Configuration
-
-The [`CMakeLists.txt`](CMakeLists.txt) configuration defines the application's C and assembly source files, links the relevant Pico libraries and generates firmware outputs.
-
-The original project was developed within a Pico applications environment. Its CMake configuration uses `apps_auto_set_url()`, so building it independently may require restoring the original parent-project configuration or adapting that setting.
-
-### Firmware
-
-The archived [`build/`](build/) directory includes historical build outputs, including an `.elf` executable and `.uf2` firmware image.
-
-The `.uf2` file is intended for deployment to the Raspberry Pi Pico using its USB bootloader.
-
-## Development Process
-
-The project was developed between **March and April 2023** using a collaborative GitHub workflow.
-
-The team organised development into three major implementation versions:
-
-1. **Version 1.0:** Initial implementation of the core game requirements and integration testing.
-2. **Version 2.0:** Refinement of the standard two-level game, code review and further testing.
-3. **Version 3.0:** Expansion to four levels, additional statistics, documentation and final testing.
-
-The team used:
-
-- GitHub Issues to track requirements and tasks.
-- Feature branches for individual development work.
-- Pull requests for integrating contributions.
-- A dedicated testing branch for integration and validation.
-- Git commit history to track collaborative development.
-
-The original project history has been preserved in this repository, retaining the contributions and development work of the full team.
-
-## Team and Contributions
-
-This project was completed collaboratively by **Group 14**.
-
-| Contributor | Project Responsibility |
+| Part | What it does |
 |---|---|
-| **Leah Weldon** | Project Code Owner |
+| `validate_input_sequence()` | Checks your answer against the expected Morse sequence |
+| `RGB_update()` and `start_RGB_Colour()` | The LED: blue before a game, then green, yellow, red and off as you lose lives |
+| Input handling and interrupts in `assign02.S` | Shared with Faith, Della and Ingrid |
+
+Through all three versions I owned **requirement 5** of the seven the team split the brief into. As Code Owner I also tested each version on our testing branch before it was merged, and tidied and documented the code. See the [project report](docs/Group-14-Project-Report.pdf) and my [contribution declaration](docs/Individual-Contribution-Declaration.pdf).
+
+## Build and flash
+
+**Quickest:** hold BOOTSEL while plugging in the Pico, then drag [`build/assign02.uf2`](build/assign02.uf2) onto the drive that appears. Open a serial terminal at 115200 baud to play.
+
+**From source:** every push builds the firmware in [GitHub Actions](.github/workflows/build.yml) and saves `assign02.uf2` as a downloadable artifact. To build it yourself, you need the Pico SDK (1.5.x), CMake and the ARM GNU toolchain. This folder is a Pico SDK application, so add it to a top-level project:
+
+```cmake
+cmake_minimum_required(VERSION 3.13)
+include(pico_sdk_import.cmake)
+project(morse_game C CXX ASM)
+pico_sdk_init()
+function(apps_auto_set_url TARGET)   # defined by the course's parent project
+endfunction()
+add_subdirectory(assign02)           # this repository
+```
+
+```bash
+cmake -S . -B build -DPICO_SDK_PATH=/path/to/pico-sdk
+cmake --build build
+```
+
+## How we worked
+
+After a week of research, we built the game in three versions: the core game, then refinement and code review, then the extra levels and statistics. Our process:
+
+- Requirements were split into GitHub issues, each with an owner.
+- Everyone worked on feature branches and opened pull requests.
+- A dedicated testing branch was where I tested each version before merging.
+
+This repository keeps the team's full Git history, with commits from all five of us.
+
+## Team
+
+**Group 14**
+
+| | Role |
+|---|---|
+| **Leah Weldon** | Code Owner |
 | **Faith Olopade** | Project Workflow Owner |
-| **Ingrid Rønneberg Bustnes** | GitLab Workflow Owner and GitHub repository management |
-| **Martha Ryan** | Project Documentation Owner |
-| **Della Doherty** | Project Demonstration Owner |
+| **Ingrid Rønneberg Bustnes** | Git Workflow Owner, and set up the team repository |
+| **Martha Ryan** | Documentation Owner |
+| **Della Doherty** | Demonstration Owner |
 
-All five members contributed to the development of the application.
+The team's original repository is [IngridBustnes/CSU23021-GRP14](https://github.com/IngridBustnes/CSU23021-GRP14).
 
-### My Contributions
+## Documents
 
-As **Project Code Owner**, my responsibilities included code implementation, testing and integration quality across the project's development stages.
-
-My documented contributions included:
-
-- Implementing and refining the functionality associated with Requirement 5 across Versions 1.0, 2.0 and 3.0.
-- Contributing to Morse Code input validation and comparison with expected sequences.
-- Implementing RGB LED-related functionality.
-- Contributing to ARM assembly input handling and interrupt processing.
-- Testing integrated implementations during each major development iteration.
-- Performing code cleanup and contributing code documentation.
-
-The original source files also retain function-level author annotations identifying contributions from individual team members.
-
-### Original Collaborative Repository
-
-The original team repository was maintained under Ingrid Bustnes's GitHub account:
-
-[IngridBustnes/CSU23021-GRP14](https://github.com/IngridBustnes/CSU23021-GRP14)
-
-This repository preserves the original Git history in a standalone project archive.
-
-## Project Documentation
-
-The original project documentation and supporting materials are preserved in the [`docs/`](docs/) directory.
-
-- [Group 14 Project Report](docs/Group-14-Project-Report.pdf) — Collaborative project documentation covering the development process, implementation, testing and team responsibilities.
-- [Individual Contribution Declaration](docs/Individual-Contribution-Declaration.pdf) — Details of my responsibilities as Project Code Owner, including implementation, integration testing and documentation.
-- [Original Assignment Specification](docs/Original-Assignment-Specification.md) — The original 2023 assignment requirements.
-
-The complete collaborative source code and Git history are also preserved in the [original Group 14 repository](https://github.com/IngridBustnes/CSU23021-GRP14).
-
-## Academic Context
-
-**University:** Trinity College Dublin  
-**Course:** Computer Science  
-**Module:** CSU23021 – Microprocessor Systems  
-**Academic Year:** 2022–2023  
-**Assignment:** Group Assignment 02  
-**Group:** 14  
-**Development Period:** 20 March – 9 April 2023
-
-## Archive Note
-
-This repository preserves the original collaborative source code, build artifacts and Git commit history for the Group 14 Morse Code Learning Game.
-
-The project was designed for specific embedded hardware and an academic Pico SDK development environment. Reproducing its original behaviour may require compatible hardware and build dependencies.
-
-The repository is maintained as a portfolio archive of a collaborative university project, with team responsibilities and individual contributions attributed accordingly.
-
----
-
-> Developed collaboratively by Group 14 as part of **CSU23021 – Microprocessor Systems**, Trinity College Dublin, 2023.
+- [Project report](docs/Group-14-Project-Report.pdf): how we planned, built and tested the game, and who did what
+- [My contribution declaration](docs/Individual-Contribution-Declaration.pdf)
+- [The assignment brief](docs/Original-Assignment-Specification.md)

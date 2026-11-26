@@ -1,0 +1,44 @@
+name: Build firmware
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: assign02
+      - name: Install the ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+      - name: Get the Raspberry Pi Pico SDK
+        run: |
+          git clone --depth 1 --branch 1.5.1 https://github.com/raspberrypi/pico-sdk.git
+          git -C pico-sdk submodule update --init --depth 1 lib/tinyusb
+      - name: Create the top-level CMake project
+        run: |
+          cp pico-sdk/external/pico_sdk_import.cmake .
+          cat > CMakeLists.txt <<'CMAKE'
+          cmake_minimum_required(VERSION 3.13)
+          include(pico_sdk_import.cmake)
+          project(morse_game C CXX ASM)
+          pico_sdk_init()
+          # The course's parent project defined this helper; it isn't needed here.
+          function(apps_auto_set_url TARGET)
+          endfunction()
+          add_subdirectory(assign02)
+          CMAKE
+      - name: Build
+        run: |
+          cmake -S . -B build -DPICO_SDK_PATH=$PWD/pico-sdk -DPICO_BOARD=pico
+          cmake --build build -j 4
+          arm-none-eabi-size build/assign02/assign02.elf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: assign02-firmware
+          path: |
+            build/assign02/assign02.uf2
+            build/assign02/assign02.elf
